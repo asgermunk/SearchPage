@@ -1,0 +1,28 @@
+/* Dice Box Styles */
+.dice-box {
+    position: absolute;
+    top: 10px; /* Distance from the top of the screen */
+    right: 10px; /* Distance from the right edge of the screen */
+    width: 10vw; /* 1/10th of the viewport width */
+    max-width: 200px; /* Optional max width */
+    height: 10vh; /* 1/10th of the viewport height */
+    max-height: 150px; /* Optional max height */
+    background-color: #f9f9f9;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ddd;
+}
+
+.dice-box h1 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.dice-box button {
+    margin-bottom: 10px;
+}

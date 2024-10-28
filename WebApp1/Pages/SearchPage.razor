@@ -1,0 +1,140 @@
+@page "/search"
+@using WebApp1.Model
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService store;
+
+<div class="container my-4">
+    <h3 class="text-primary mb-4">Search Page</h3>
+
+    <EditForm model="@searchWord" class="mb-3">
+        <div class="input-group">
+            <InputText @bind-Value="searchWord.WordText" class="form-control" placeholder="Enter search word..." />
+        </div>
+    </EditForm>
+
+    <div class="d-flex gap-2 mb-3">
+        <button class="btn btn-primary" @onclick="async () => await starterMed()">Starter med</button>
+        <button class="btn btn-secondary" @onclick="async () => await indeholder()">Indeholder</button>
+        <button class="btn btn-secondary" @onclick="async () => await wordle()">Wordle</button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(searchWord.WordText))
+    {
+        <p class="text-muted small">Searching for: <strong>@searchWord.WordText</strong></p>
+    }
+
+    @if (sortedList != null && sortedList.Count > 0)
+    {
+        <div class="card">
+            <ul class="list-group list-group-flush">
+                @for (int i = 0; i < shownWords && i < sortedList.Count; i++)
+                {
+                    <li class="list-group-item">@sortedList[i]</li>
+                }
+            </ul>
+            <div class="card-footer text-center">
+                <button class="btn btn-link" @onclick="showMoreWords">Show more...</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string[]? allWords;
+    public Word searchWord = new Word(); // Initialize with a new instance
+    public List<string> sortedList = new List<string>(); // Initialize as empty list
+    public int shownWords = 10; // Default value
+
+    private string searchWordKey = "searchWord";
+    private string sortedListKey = "SortedList";
+    private string shownWordsKey = "shownWords";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var content = await Http.GetStringAsync("sample-data/words.txt");
+        searchWord = await store.GetItemAsync<Word>(searchWordKey) ?? new Word();
+        sortedList = await store.GetItemAsync<List<string>>(sortedListKey) ?? new List<string>();
+
+        // Retrieve shownWords and handle default case
+        shownWords = await store.GetItemAsync<int>(shownWordsKey);
+        if (shownWords == 0)
+        {
+            shownWords = 10; // Default value
+            await store.SetItemAsync<int>(shownWordsKey, shownWords); // Store it
+        }
+
+        allWords = content.Split("\n");
+    }
+
+    private async Task indeholder()
+    {
+        await Task.Run(() =>
+        {
+            List<string> tempList = new List<string>();
+
+            foreach (var word in allWords)
+            {
+                if (word.Contains(searchWord.WordText))
+                {
+                    tempList.Add(word);
+                }
+            }
+
+            sortedList = tempList;
+        });
+
+        // Store results in LocalStorage
+        await store.SetItemAsync<List<string>>(sortedListKey, sortedList);
+        await store.SetItemAsync<Word>(searchWordKey, searchWord);
+    }
+
+    private async Task starterMed()
+    {
+        await Task.Run(() =>
+        {
+            List<string> tempList = new List<string>();
+
+            foreach (var word in allWords)
+            {
+                if (word.StartsWith(searchWord.WordText))
+                {
+                    tempList.Add(word);
+                }
+            }
+
+            sortedList = tempList;
+        });
+
+        // Store results in LocalStorage
+        await store.SetItemAsync<List<string>>(sortedListKey, sortedList);
+        await store.SetItemAsync<Word>(searchWordKey, searchWord);
+    }
+
+    public async Task showMoreWords()
+    {
+        shownWords += 10;
+        await store.SetItemAsync<int>(shownWordsKey, shownWords); // Store updated shownWords
+    }
+
+    private async Task wordle()
+    {
+        await Task.Run(() =>
+        {
+            List<string> tempList = new List<string>();
+
+            foreach (var word in allWords)
+            {
+                if (word.Contains(searchWord.WordText) && word.Length == 5)
+                {
+                    tempList.Add(word);
+                }
+            }
+
+            sortedList = tempList;
+        });
+
+        // Store results in LocalStorage
+        await store.SetItemAsync<List<string>>(sortedListKey, sortedList);
+        await store.SetItemAsync<Word>(searchWordKey, searchWord);
+    }
+}

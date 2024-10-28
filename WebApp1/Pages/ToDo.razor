@@ -1,0 +1,74 @@
+@page "/todo"
+@using WebApp1.Model
+
+
+
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+<h1>ToDo List - Version 1 - Pending tasks: @items.Count(item => !item.IsDone)</h1>
+
+<div class="container mt-4">
+    <!-- Dark-themed, striped table -->
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            
+            <th scope="col">Task</th>
+            <th scope="col">Done</th>
+            <th scope="col">Remove</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (ToDoItem item in items)
+        {
+            
+            <tr>
+           
+                <td>@item.Title</td>
+                <td><InputCheckbox @bind-Value="item.IsDone" /></td>
+                <td><button style="font-size:12px" @onclick="() => RemoveTask(item)">X<i class="fa fa-remove"></i></button></td>
+            </tr>
+           
+        }
+        </tbody>
+    </table>
+
+    <!-- Input and button to add new ToDo items -->
+    <div class="input-group mb-3">
+        <InputText class="form-control" @bind-Value="newToDo" placeholder="Enter a new task" />
+        <div class="input-group-append">
+            <button class="btn btn-primary" @onclick="AddToDo">Add</button>
+        </div>
+    </div>
+
+</div>
+<DicePage></DicePage>
+@code {
+string? newToDo;
+List<ToDoItem> items = new();
+
+
+
+async void RemoveTask(ToDoItem item)
+{
+    items.Remove(item); // Remove the item from the list
+    await LocalStorage.SetItemAsync<List<ToDoItem>>("tasks", items);
+}
+async void AddToDo()
+{
+if (!string.IsNullOrWhiteSpace(newToDo))
+{
+items.Add(new ToDoItem { Title = newToDo, IsDone = false });
+newToDo = string.Empty; // Clear the input after adding
+await LocalStorage.SetItemAsync<List<ToDoItem>>("tasks", items);
+}
+}
+protected override async Task OnInitializedAsync()
+{
+    var tasksJson = await LocalStorage.GetItemAsync<List<ToDoItem>>("tasks");
+    if (tasksJson != null)
+    {
+
+        items = tasksJson;
+    }
+}
+}

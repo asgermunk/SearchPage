@@ -1,0 +1,59 @@
+@page "/productList"
+@using Blazored.LocalStorage.StorageOptions
+@using WebApp1.Model
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+    
+
+        <h2>Product List</h2>
+
+        @if (Products?.Count > 0)
+        {
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Published Date</th>
+                <th>Category</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var product in Products)
+            {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Price</td>
+                <td>@product.PublishedDate</td>
+                <td>@product.Category</td>
+                <td>@product.Description</td>
+            </tr>
+            }
+            </tbody>
+        </table>
+       
+        }
+        else
+        {
+        <p>No products available.</p>
+        }
+<DicePage></DicePage>
+    @code {
+        
+
+private List<Product> Products = new();
+
+
+protected override async Task OnInitializedAsync()
+{
+    // Retrieve the product list from local storage
+    Products = await LocalStorage.GetItemAsync<List<Product>>("product") ?? new List<Product>();
+}
+    
+    
+    
+    
+    
+    
+
+}

@@ -1,0 +1,30 @@
+@page "/DicePage"
+@using WebApp1.Model;
+
+<div class="dice-box">
+    <h1>Roll a Dice!</h1>
+    <h2>How many dices do you want to roll?</h2>
+    <InputNumber id="Price" @bind-Value="numberOfDices" class="form-control" />
+    
+    <button class="btn btn-primary" @onclick="RollDice">Roll</button>
+    @foreach(var d in diceList)
+    {
+        <div>You rolled <img src="@($"dice/Dice{d}.png")" alt="Dice Roll" /></div>
+    }
+
+
+</div>
+
+@code {
+    Dice dice = new();
+    int numberOfDices;
+    private List<int> diceList = new();
+    
+    private void RollDice()
+    {
+        for(int i = 0; i<numberOfDices;i++){
+        dice.Roll();
+        diceList.Add(dice._myEyes);
+        }
+    }
+}
